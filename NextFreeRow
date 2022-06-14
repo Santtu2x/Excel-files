@@ -1,0 +1,11 @@
+Sub NextFreeRow()
+
+Application.ScreenUpdating = False
+    'Add sheet and range
+    Application.Goto (ActiveWorkbook.Sheets("").Range(""))
+    Do Until IsEmpty(Selection)
+        Selection.Offset(1, 0).Select
+        Loop
+Application.ScreenUpdating = True
+
+End Sub
