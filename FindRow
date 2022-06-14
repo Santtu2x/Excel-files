@@ -1,0 +1,29 @@
+Sub FindRow()
+
+Application.ScreenUpdating = False
+
+'Example as InputBox, can also just assign value for EtsiID
+
+Dim EtsiID As Variant
+Target = InputBox("question", "title")
+
+If Target <> "" Then
+    
+    EtsiID = Target
+    'Assign top cell of the column you want to search
+    Application.Goto (ActiveWorkbook.Sheets("").Range(""))
+    'This code needs a cell with "END" to stop searching
+        Do Until Selection.Value = EtsiID Or Selection.Value = "END"
+            Selection.Offset(1, 0).Select
+            Loop
+            
+        If Selection.Value = "END" Then
+            MsgBox "not found"
+        End If
+         
+  
+End If
+
+Application.ScreenUpdating = True
+
+End Sub
