@@ -1,0 +1,90 @@
+Option Explicit
+Sub Consolidate()
+'Author:     Jerry Beaucaire'
+'Date:       9/15/2009     (2007 compatible)  (updated 4/29/2011)
+'Summary:    Merge files in a specific folder into one master sheet (stacked)
+'            Moves imported files into another folder
+Dim fName As String, fPath As String, fPathDone As String
+Dim LR As Long, NR As Long
+Dim wbData As Workbook, wsMaster As Worksheet
+
+'Setup
+    Application.ScreenUpdating = False  'speed up macro execution
+    Application.EnableEvents = False    'turn off other macros for now
+    Application.DisplayAlerts = False   'turn off system messages for now
+    
+    Set wsMaster = ThisWorkbook.Sheets("Master")    'sheet report is built into
+
+With wsMaster
+    If MsgBox("Clear the old data first?", vbYesNo) = vbYes Then
+        .UsedRange.Offset(1).EntireRow.Clear
+        NR = 2
+    Else
+        NR = .Range("A" & .Rows.Count).End(xlUp).Row + 1    'appends data to existing data
+    End If
+
+'Path and filename (edit this section to suit)
+    fPath = "C:\2011\Files\"            'remember final \ in this string
+    fPathDone = fPath & "Imported\"     'remember final \ in this string
+    On Error Resume Next
+        MkDir fPathDone                 'creates the completed folder if missing
+    On Error GoTo 0
+    fName = Dir(fPath & "*.xls*")       'listing of desired files, edit filter as desired
+
+'Import a sheet from found files
+    Do While Len(fName) > 0
+        If fName <> ThisWorkbook.Name Then              'don't reopen this file accidentally
+            Set wbData = Workbooks.Open(fPath & fName)  'Open file
+        'This is the section to customize, replace with your own action code as needed
+            LR = Range("A" & Rows.Count).End(xlUp).Row  'Find last row
+            Range("A1:A" & LR).EntireRow.Copy .Range("A" & NR)
+            wbData.Close False                                'close file
+            NR = .Range("A" & .Rows.Count).End(xlUp).Row + 1  'Next row
+            Name fPath & fName As fPathDone & fName           'move file to IMPORTED folder
+        End If
+        fName = Dir                                       'ready next filename
+    Loop
+End With
+
+ErrorExit:    'Cleanup
+    ActiveSheet.Columns.AutoFit
+    Application.DisplayAlerts = True         'turn system alerts back on
+    Application.EnableEvents = True          'turn other macros back on
+    Application.ScreenUpdating = True        'refreshes the screen
+End Sub
+
+----------------------------------------------
+
+Folder select option (replace fPath = "C:\2010\Files\")
+
+    MsgBox "Please select a folder with files to consolidate"
+    Do
+        With Application.FileDialog(msoFileDialogFolderPicker)
+            .InitialFileName = "C:\2010\Test\"
+            .AllowMultiSelect = False
+            .Show
+            If .SelectedItems.Count > 0 Then
+                fPath = .SelectedItems(1) & "\"
+                Exit Do
+            Else
+                If MsgBox("No folder chose, do you wish to abort?", _
+                    vbYesNo) = vbYes Then Exit Sub
+            End If    
+        End With
+    Loop
+    
+---------------------------------------------
+
+Data from multiple sheets:
+
+'This is the section to customize, replace with your own action code as needed
+    Dim ws As Worksheet
+    For Each ws In wbData.Sheets(Array("Sheet1", "Sheet3", "BackupData"))
+        LR = ws.Range("A" & ws.Rows.Count).End(xlUp).Row 'Find last row
+        If NR = 1 Then 'copy the data AND titles
+            ws.Range("A1:A" & LR).EntireRow.Copy .Range("A" & NR)
+        Else 'copy the data only
+            ws.Range("A2:A" & LR).EntireRow.Copy .Range("A" & NR)
+        End If
+        NR = .Range("A" & .Rows.Count).End(xlUp).Row + 1 'Next row
+    Next w
