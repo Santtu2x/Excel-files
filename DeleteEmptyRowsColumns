@@ -1,0 +1,43 @@
+Sub DeleteEmptyRows()
+
+    Dim r As Range, rows As Long, i As Long
+    Set r = ActiveSheet.Range("A1:Z50") 'Remember to check that cell Z50 covers everything
+    rows = r.rows.Count
+    For i = rows To 1 Step (-1)
+    If WorksheetFunction.CountA(r.rows(i)) = 0 Then r.rows(i).Delete
+  Next
+
+End Sub
+
+------------------------------
+
+Sub DeleteEmptyColumns()
+
+    Dim r As Range, columns As Long, i As Long
+    Set r = ActiveSheet.Range("A1:Z50")
+    columns = r.columns.Count
+    For i = columns To 1 Step (-1)
+    If WorksheetFunction.CountA(r.columns(i)) = 0 Then r.columns(i).Delete
+  Next
+
+End Sub
+
+--------------------------------
+
+Sub DeleteEmptyRowsAndColumns()
+
+    Dim r As Range, rows As Long, i As Long
+    Set r = ActiveSheet.Range("A1:Z50")
+    rows = r.rows.Count
+    For i = rows To 1 Step (-1)
+    If WorksheetFunction.CountA(r.rows(i)) = 0 Then r.rows(i).Delete
+  Next
+  
+  Dim e As Range, columns As Long, j As Long
+    Set e = ActiveSheet.Range("A1:Z50")
+    columns = e.columns.Count
+    For j = columns To 1 Step (-1)
+    If WorksheetFunction.CountA(e.columns(j)) = 0 Then e.columns(j).Delete
+  Next
+
+End Sub
